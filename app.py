@@ -1,6 +1,10 @@
+import sqlite3
+from collections import Counter
+
 from flask import Flask, request
 
-from utils import generate_fake_name, generate_random_password, get_astros, get_requirements_content
+
+from utils import exec_query, generate_fake_name, generate_random_password, get_astros, get_requirements_content
 
 
 app = Flask(__name__)
@@ -44,6 +48,49 @@ def fake_name():
 @app.route('/space/')
 def space():
     return get_astros()
+
+
+@app.route('/customers/')
+def customers():
+    country = request.args['country']
+    query = f"SELECT * FROM customers WHERE Country = '{country}';"
+    return str(exec_query(query))
+
+
+@app.route('/customers_all/')
+def customers_all():
+    conn = sqlite3.connect('./chinook.db')
+    cursor = conn.cursor()
+    cursor.execute('Select * from customers;')
+    result = cursor.fetchall()
+    conn.close()
+    return str(result)
+
+
+@app.route('/invoices/')
+def invoices():
+    query = 'SELECT * FROM invoices;'
+    return str(exec_query(query))
+
+
+@app.route('/names/')
+def customers_names():
+    query = 'SELECT FirstName FROM customers;'
+    name_list = str(exec_query(query))
+    result = Counter(name_list).values()
+    return str(result)
+
+
+@app.route('/tracks/')
+def tracks():
+    query = 'SELECT COUNT(TrackId) FROM tracks;'
+    return str(exec_query(query))
+
+
+@app.route('/tracks-sec/')
+def tracks_sec():
+    query = 'SELECT Name, Milliseconds/1000 FROM tracks;'
+    return str(exec_query(query))
 
 
 if __name__ == "__main__":
