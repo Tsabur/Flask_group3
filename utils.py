@@ -1,5 +1,7 @@
 import random
+import sqlite3
 import string
+
 
 from faker import Faker
 
@@ -36,3 +38,12 @@ def generate_fake_name(name_count=100) -> str:
 def get_astros():
     r = requests.get('http://api.open-notify.org/astros.json')
     return r.json()
+
+
+def exec_query(query: str) -> list:
+    conn = sqlite3.connect('./chinook.db')
+    cursor = conn.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+    conn.close()
+    return result
